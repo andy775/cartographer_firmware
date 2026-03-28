@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartographer Firmware Flasher - Select Probe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .probe-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .probe-option {
+            cursor: pointer;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .probe-option:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            background: #f0f4ff;
+        }
+
+        .probe-option input[type="radio"] {
+            display: none;
+        }
+
+        .probe-option input[type="radio"]:checked + label {
+            border-color: #667eea;
+            background: #e8edff;
+        }
+
+        .probe-option label {
+            display: block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .probe-image {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            object-fit: contain;
+        }
+
+        .probe-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .probe-description {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .connection-selection {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f7ff;
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .connection-selection h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .connection-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .connection-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connection-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .connection-option input[type="radio"] {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .connection-option input[type="radio"]:checked + label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .connection-option label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 1em;
+            color: #333;
+        }
+
+        .detected-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            text-align: center;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            .probe-selection {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cartographer Firmware Flasher</h1>
+        <p class="subtitle">Select your probe type</p>
+        
+        {% if detected_protocol %}
+        <div class="detected-info">
+            ✓ Detected connection: {{ detected_protocol }}
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="{{ url_for('select_probe') }}">
+            <div class="probe-selection">
+                <div class="probe-option">
+                    <input type="radio" id="v3" name="probe_version" value="v3" required>
+                    <label for="v3">
+                        <img src="{{ url_for('resources', filename='v3.webp') }}" alt="V3 Probe" class="probe-image">
+                        <div class="probe-name">V3 Probe</div>
+                        <div class="probe-description">Cartographer V3</div>
+                    </label>
+                </div>
+                
+                <div class="probe-option">
+                    <input type="radio" id="v4" name="probe_version" value="v4" required>
+                    <label for="v4">
+                        <img src="{{ url_for('resources', filename='v4.webp') }}" alt="V4 Probe" class="probe-image">
+                        <div class="probe-name">V4 Probe</div>
+                        <div class="probe-description">Cartographer V4</div>
+                    </label>
+                </div>
+            </div>
+            
+            {% if not detected_protocol %}
+            <div class="connection-selection">
+                <h3>Current Connection</h3>
+                <div class="connection-options">
+                    <div class="connection-option">
+                        <input type="radio" id="connection_usb" name="connection_type" value="USB" checked>
+                        <label for="connection_usb">USB</label>
+                    </div>
+                    <div class="connection-option">
+                        <input type="radio" id="connection_can" name="connection_type" value="CAN">
+                        <label for="connection_can">CAN</label>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="submit-btn">
+                <button type="submit">Continue</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Add visual feedback when selecting a probe
+        document.querySelectorAll('.probe-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                // Update visual state
+                document.querySelectorAll('.probe-option').forEach(opt => {
+                    opt.style.borderColor = '#e0e0e0';
+                    opt.style.background = '#f9f9f9';
+                });
+                this.style.borderColor = '#667eea';
+                this.style.background = '#e8edff';
+            });
+        });
+    </script>
+</body>
+</html>
+
