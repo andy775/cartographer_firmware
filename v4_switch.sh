@@ -124,7 +124,7 @@ cd ~/cartographer_firmware/firmware/v4/katapult-deployer/
 pwd
 echo "-------------------------------------------------------------"
 
-~/klippy-env/bin/python ~/klipper/lib/canboot/flash_can.py -f katapult_deployer_v4_CAN_1M.bin -d "$KATAPULT_DEVICE"
+~/klippy-env/bin/python ~/katapult/scripts/flashtool.py -f katapult_deployer_v4_CAN_1M.bin -d "$KATAPULT_DEVICE"
 clear
 echo -e "\033[1;31mPlease unplug the USB probe and re-install it in CAN mode.\033[0m"
 echo ""
@@ -145,7 +145,7 @@ echo "Copy this into your Clipboard and once you have plugged your probe in via 
 echo ""
 echo ""
 echo -e "\033[0;32mcd ~/cartographer_firmware/firmware/v4/firmware/6.0.0/\033[0m"
-echo -e "\033[0;32mpython3 ~/katapult/scripts/flash_can.py -i can0 -f $FIRMWARE_FILE -u $DEVICE_UUID\033[0m"
+echo -e "\033[0;32mpython3 ~/katapult/scripts/flashtool.py -i can0 -f $FIRMWARE_FILE -u $DEVICE_UUID\033[0m"
 echo ""
 echo ""You can also run the commands automatically if you are not rebooting the printer.
 echo "-------------------------------------------------------------"
@@ -165,7 +165,7 @@ if [ -n "$DEVICE_UUID" ]; then
             echo ""
             if [[ $REPLY =~ ^[Yy]$ ]]; then
                 echo "Flashing firmware via CAN..."
-                python3 ~/katapult/scripts/flash_can.py -i can0 -f "$FIRMWARE_FILE" -u "$DEVICE_UUID"
+                python3 ~/katapult/scripts/flashtool.py -i can0 -f "$FIRMWARE_FILE" -u "$DEVICE_UUID"
                 echo ""
                 echo "-------------------------------------------------------------"
                 echo "Flash complete!"
